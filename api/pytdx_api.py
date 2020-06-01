@@ -5,17 +5,18 @@ from paper_trading.utility.setting import SETTINGS
 
 # 市场代码对照表
 exchange_map = {}
-exchange_map['SH'] = 1
-exchange_map['SZ'] = 0
+exchange_map["SH"] = 1
+exchange_map["SZ"] = 0
 
 
-class PYTDXService():
+class PYTDXService:
     """pytdx数据服务类"""
 
-    def __init__(self):
+    def __init__(self, client):
         """Constructor"""
         self.connected = False  # 数据服务连接状态
         self.hq_api = None  # 行情API
+        self.client = client  # mongo client
 
     def connect_api(self):
         """连接API"""
@@ -36,6 +37,29 @@ class PYTDXService():
         try:
             symbols = self.generate_symbols(symbol)
             df = self.hq_api.to_df(self.hq_api.get_security_quotes(symbols))
+            data = self.client["stocks"]["security"].find_one(
+                {"code": symbols[0][1], "market": str(symbols[0][0])}
+            )
+            # 处理基金价格：通达信基金数据是实际价格的10倍
+            if data["decimal_point"] == 3:
+                for val in [
+                    "price",
+                    "last_close",
+                    "open",
+                    "high",
+                    "low",
+                    "ask1",
+                    "bid1",
+                    "ask2",
+                    "bid2",
+                    "ask3",
+                    "bid3",
+                    "ask4",
+                    "bid4",
+                    "ask5",
+                    "bid5",
+                ]:
+                    df[val] = df[val] / 10
             return df
         except Exception:
             raise ValueError("股票数据获取失败")
@@ -56,13 +80,11 @@ class PYTDXService():
         data_list = []
         position = [6000, 4000, 2000, 0]
         for start in position:
-            data = self.hq_api.to_df(self.hq_api.get_history_transaction_data(
-                market,
-                code,
-                start,
-                count,
-                check_date
-            ))
+            data = self.hq_api.to_df(
+                self.hq_api.get_history_transaction_data(
+                    market, code, start, count, check_date
+                )
+            )
             data_list.append(data)
 
         df = pd.concat(data_list)
@@ -73,7 +95,7 @@ class PYTDXService():
     def generate_symbols(symbol: str):
         """组装symbols数据，pytdx接收的是以市场代码和标的代码组成的元祖的list"""
         new_symbols = []
-        code, exchange = symbol.split('.')
+        code, exchange = symbol.split(".")
         new_symbols.append((exchange_map[exchange], code))
 
         return new_symbols
@@ -82,7 +104,7 @@ class PYTDXService():
     def check_symbol(symbol: str):
         """检查标的格式"""
         if symbol:
-            code, market = symbol.split('.')
+            code, market = symbol.split(".")
             market = exchange_map.get(market)
             return code, market
 

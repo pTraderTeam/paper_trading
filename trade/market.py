@@ -1,4 +1,3 @@
-
 import copy
 import traceback
 from queue import Queue
@@ -8,11 +7,7 @@ from datetime import datetime, time
 from collections import OrderedDict
 
 from paper_trading.event import Event
-from paper_trading.utility.event import (
-    EVENT_ERROR,
-    EVENT_LOG,
-    EVENT_MARKET_CLOSE
-)
+from paper_trading.utility.event import EVENT_ERROR, EVENT_LOG, EVENT_MARKET_CLOSE
 from paper_trading.utility.model import Order, Status, LogData
 from paper_trading.utility.constant import OrderType, PriceType, TradeType
 
@@ -25,9 +20,9 @@ class Exchange:
     """
 
     def __init__(self, event_engine, account_engine, hq_ser, param):
-        self.market_name = ""               # 市场名称
-        self._active = False                # 市场状态标识
-        self.orders_book = OrderedDict()    # 订单薄用于成交撮合
+        self.market_name = ""  # 市场名称
+        self._active = False  # 市场状态标识
+        self.orders_book = OrderedDict()  # 订单薄用于成交撮合
 
         # 事件引擎
         self.event_engine = event_engine
@@ -38,9 +33,9 @@ class Exchange:
         # 行情源实例
         self.hq_client = hq_ser
 
-        self.exchange_symbols = []          # 交易市场标识
-        self.turnover_mode = None           # 回转交易模式
-        self.verification = OrderedDict()   # 订单验证清单
+        self.exchange_symbols = []  # 交易市场标识
+        self.turnover_mode = None  # 回转交易模式
+        self.verification = OrderedDict()  # 订单验证清单
 
     def on_init(self):
         """初始化"""
@@ -67,8 +62,8 @@ class Exchange:
             hq = self.hq_client.get_realtime_data(order.pt_symbol)
 
             if len(hq):
-                ask1 = float(hq.loc[0, "ask1"])
-                bid1 = float(hq.loc[0, 'bid1'])
+                ask1 = round(hq.loc[0, "ask1"], 5)
+                bid1 = round(hq.loc[0, "bid1"], 5)
 
                 if order.order_type == OrderType.BUY.value:
                     # 涨停
@@ -143,9 +138,9 @@ class Exchange:
 
                 self.write_log(
                     "处理订单：账户：{}, 订单号：{}, 结果：{}".format(
-                        order.account_id,
-                        order.order_id,
-                        order.error_msg))
+                        order.account_id, order.order_id, order.error_msg
+                    )
+                )
 
         self.orders_book.clear()
 
@@ -183,10 +178,7 @@ class Exchange:
         """交易时间验证"""
         result = False
         now = datetime.now().time()
-        time_dict = {
-            "1": (time(9, 15), time(11, 30)),
-            "2": (time(13, 0), time(15, 0))
-        }
+        time_dict = {"1": (time(9, 15), time(11, 30)), "2": (time(13, 0), time(15, 0))}
         for k, time_check in time_dict.items():
             if (now >= time_check[0]) and (now <= time_check[1]):
                 result = True
@@ -219,18 +211,18 @@ class Exchange:
                 self.on_order_refused(order)
                 self.write_log(
                     "处理订单：账户：{}, 订单号：{}, 结果：{}".format(
-                        order.account_id, order.order_id, msg))
+                        order.account_id, order.order_id, msg
+                    )
+                )
 
                 return False
 
         return True
 
+
     def write_log(self, msg: str, level: int = INFO):
         """"""
-        log = LogData(
-            log_content=msg,
-            log_level=level
-        )
+        log = LogData(log_content=msg, log_level=level)
         event = Event(EVENT_LOG, log)
         self.event_engine.put(event)
 
@@ -244,11 +236,13 @@ class BacktestMarket(Exchange):
     """
 
     def __init__(self, event_engine, account_engine, hq_ser, param):
-        super(BacktestMarket, self).__init__(event_engine, account_engine, hq_ser, param)
+        super(BacktestMarket, self).__init__(
+            event_engine, account_engine, hq_ser, param
+        )
 
-        self.market_name = "backtest_market"            # 交易市场名称
-        self.turnover_mode = TradeType.T_PLUS1.value    # 交收类型
-        self.orders_queue = Queue()                     # 使用订单队列
+        self.market_name = "backtest_market"  # 交易市场名称
+        self.turnover_mode = TradeType.T_PLUS1.value  # 交收类型
+        self.orders_queue = Queue()  # 使用订单队列
 
     def on_match(self):
         """交易撮合"""
@@ -290,9 +284,9 @@ class ChinaAMarket(Exchange):
     def __init__(self, event_engine, account_engine, hq_ser, param):
         super(ChinaAMarket, self).__init__(event_engine, account_engine, hq_ser, param)
 
-        self.market_name = "china_a_market"            # 交易市场名称
-        self.exchange_symbols = ["SH", "SZ"]           # 交易市场标识
-        self.turnover_mode = TradeType.T_PLUS1.value   # 回转交易模式
+        self.market_name = "china_a_market"  # 交易市场名称
+        self.exchange_symbols = ["SH", "SZ"]  # 交易市场标识
+        self.turnover_mode = TradeType.T_PLUS1.value  # 回转交易模式
 
     def on_match(self):
         """交易撮合"""
