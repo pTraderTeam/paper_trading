@@ -1,7 +1,10 @@
-import pandas as pd
-from pytdx.hq import TdxHq_API
+import random
 
-from paper_trading.utility.setting import SETTINGS
+import pandas as pd
+from pytdx.config.hosts import hq_hosts
+from pytdx.hq import TdxHq_API
+from pytdx.pool.hqpool import TdxHqPool_API
+from pytdx.pool.ippool import AvailableIPPool
 
 # 市场代码对照表
 exchange_map = {}
@@ -23,10 +26,18 @@ class PYTDXService:
         # 连接增强行情API并检查连接情况
         try:
             if not self.connected:
-                host = SETTINGS["TDX_HOST"]
-                port = SETTINGS["TDX_PORT"]
-                self.hq_api = TdxHq_API()
-                self.hq_api.connect(host, port)
+                ips = [(v[1], v[2]) for v in hq_hosts]
+                # 获取5个随机ip作为ip池
+                random.shuffle(ips)
+                ips5 = ips[:5]
+                # IP 池对象
+                ippool = AvailableIPPool(TdxHq_API, ips5)
+
+                # 选出M, H
+                primary_ip, hot_backup_ip = ippool.sync_get_top_n(2)
+                # 生成hqpool对象，第一个参数为TdxHq_API后者 TdxExHq_API里的一个，第二个参数为ip池对象。
+                self.hq_api = TdxHqPool_API(TdxHq_API, ippool)
+                self.hq_api.connect(primary_ip, hot_backup_ip)
                 self.connected = True
             return True
         except Exception:
