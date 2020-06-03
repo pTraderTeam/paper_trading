@@ -172,8 +172,10 @@ class AccountEngine():
     def liquidation(self, hq_client):
         """清算"""
         today = datetime.now().strftime("%Y%m%d")
-
-        for token, trader in self.trader_dict.items():
+        account_list = query_account_list(self.db)
+        for account_id in account_list:
+            self.load_trader_data(account_id)
+            trader = self.trader_dict[account_id]
             for symbol, pos in trader.pos.items():
                 hq = hq_client.get_realtime_data(symbol)
                 if hq is not None:
