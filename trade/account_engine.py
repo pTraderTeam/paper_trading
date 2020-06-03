@@ -184,6 +184,7 @@ class AccountEngine():
                     trader.on_position_update_price(pos, now_price)
             # 清算
             trader.on_liquidation(today)
+            self.trader_dict.pop(account_id)
 
     def liq_manual(self, token, liq_date, price_dict):
         """手工清算"""
