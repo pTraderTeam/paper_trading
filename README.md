@@ -2,7 +2,6 @@
 
 Paper Trading项目已经由pTraderTeam小组来维护
 
-
 ![image](https://github.com/pTraderTeam/paper_trading/blob/master/data_flow.jpg)
 
 ##更新预告
@@ -16,6 +15,17 @@ Paper Trading项目已经由pTraderTeam小组来维护
 4、完善交易结果查询页面的功能；
 
 5、完成日K线训练web页面的开发；
+
+## 2020年6月1日更新
+1、增加支持通达信ETF交易功能
+
+2、增加同步表security的后台任务
+
+3、查询订单接口支持按照日期查询
+
+4、撤单bug处理
+
+5、查询订单接口优化：返回空数据时数据结构调整
 
 ## 2020年5月30日更新
 1、将项目转移给pTraderTeam进行后期开发和维护;

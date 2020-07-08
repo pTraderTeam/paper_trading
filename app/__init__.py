@@ -1,5 +1,7 @@
-from flask import Flask
 from datetime import timedelta
+from logging.config import dictConfig
+
+from flask import Flask
 
 from paper_trading.config import config
 from paper_trading.tasks.base import init_tasks
@@ -8,6 +10,8 @@ from .views import init_blue
 
 def creat_app(config_name: str, engine):
     __all__ = ['app']
+    # 创建app实例前先配置好日志文件
+    dictConfig(config[config_name].LOG_FORMAT)
     app = Flask(__name__)
     app.config['SECRET_KEY'] = config[config_name].SECRET_KEY
 

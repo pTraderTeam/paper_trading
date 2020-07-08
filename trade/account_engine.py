@@ -177,7 +177,7 @@ class AccountEngine():
             for symbol, pos in trader.pos.items():
                 hq = hq_client.get_realtime_data(symbol)
                 if hq is not None:
-                    now_price = float(hq.loc[0, "price"])
+                    now_price = round(hq.loc[0, "price"], 5)
                     # 更新收盘行情
                     trader.on_position_update_price(pos, now_price)
             # 清算
