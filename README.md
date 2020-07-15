@@ -1,4 +1,5 @@
 # Paper Trading
+专注于证券市场模拟交易后台服务，可市场可扩展。
 
 Paper Trading项目已经由pTraderTeam小组来维护
 
@@ -16,129 +17,22 @@ Paper Trading项目已经由pTraderTeam小组来维护
 
 5、完成日K线训练web页面的开发；
 
-## 2020年6月1日更新
-1、增加支持通达信ETF交易功能
 
-2、增加同步表security的后台任务
-
-3、查询订单接口支持按照日期查询
-
-4、撤单bug处理
-
-5、查询订单接口优化：返回空数据时数据结构调整
-
-## 2020年5月30日更新
-1、将项目转移给pTraderTeam进行后期开发和维护;
-
-2、修订订单撤单bug;
-
-3、增加订单查询接口，可以通过日期范围进行订单查询;
-
-
-## 2020年5月12日更新
-1、统一接口返回格式：查询持仓为空时返回空列表；下单成功返回数据结构设置为字典格式;
-
-2、订单撤单bug处理：构造order对象时将股票代码和市场信息传入方便后续逻辑的正常进行;
-
-3、交易模式：历史订单从数据库查询;
-
-## 2020年4月10日更新
-1、增加模拟交易系统api连接机制，所有账户在连接交易API时均需要登录；
-
-2、调整系统架构，将所有数据的计算和查询全部放到内存中进行，数据是否持久化，根据setting中的数据持久化模式决定；如果想提高回测效率，请选择手动持久化；
-
-3、修正交易报告中最大回撤统计的错误；
-
-4、修正了其他BUG
-
-
-## 2020年4月更新
-1、增加了开发模式，用于web开发；
-
-2、增加了模拟交易web页面及功能；
-
-3、增加了交易结果查询web页面查询功能；
-
-4、修改了实时模拟成交的默认行情源为pytdx；
-
-5、修订了系统若干BUG；
-
-6、调整了交易结果及报告的函数，使其更易于扩展；
-
-
-
-## 2020年3月更新
-1、调整系统架构，提高扩展能力，去掉了交易引擎的工作模式，使用独立的回测市场取代回测模式。
-完善市场基类的方法和属性，如果想新建立一个模拟交易市场可以仅继承并修改几个属性和方法即可完成。
-
-2、优化了引擎方法；
-
-3、增强了系统错误处理机制；
-
-4、增加账户建立时修改账户参数的功能；
-
-5、修订了系统若干BUG；
-
-6、增强了图形化显示报告及记录的功能；
-
-
-## 2020年2月更新
-1、修复若干BUG
-
-2、增加持仓记录模式
-
-3、完善报表功能
-
-
-## 2020年1月更新
-1、将市场订单撮合放在内存中进行；
-
-2、增加flask config，配合系统启动模式使用；
-
-3、加入控制台命令切换启动模式功能；
-
-4、修改账户模型，将SETTINGS中得参数映射到新建立得账户中，以满足不同账户不同参数的使用需求
-
-5、增加报表功能；
-
-6、修订了若干BUG；
-
-
-## 安装
+## 系统安装
 
 ### 安装Python
 
 至少Python3.7以上
 
-### 安装mongodb和pymongo
+### 安装mongodb
 
 安装好之后将mongodb服务开启
 
-```
-pip install pymongo
-```
-
-### 安装tushare
-
-安装tushare，并在tushare官网上注册你的账号
-
-```
-pip install tushare
+### 安装
+```shell script
+pip install paper_trading
 ```
 
-参考：https://tushare.pro
-
-#### 安装flask
-
-```
-pip install flask
-```
-
-#### 安装其他依赖
-
-```
-pip3 install -r requirements.txt
-```
 
 ## 配置
 
@@ -147,13 +41,10 @@ pip3 install -r requirements.txt
 setting.py 包括了所有模拟交易程序的运行参数。你要自己考虑需要什么样的模拟交易程序
 
 
-### 配置flask app
-
-根据你的需要修改run.py中的IP地址和端口，及调试模式
 
 ## 使用
-```
-python run.py
+```shell script
+trading
 ```
 开始模拟交易吧
 
@@ -162,27 +53,44 @@ flask app 只提供了模拟交易服务的接口，需要你自己向这个接�
 你可以自己用requests或者其他工具写一个url请求模块，把server.py中的接口都封装一下，或者直接使用exampe。
 把example文件夹中的pt_api.py文件放入你的量化交易程序，在引入相关函数后，你就可以使用模拟交易程序的功能了。
 
+## 开发环境安装
+
+```shell script
+poetry install
+pre-commit install
+```
+### 配置flask app
+
+根据你的需要修改run.py中的IP地址和端口，及调试模式
+
+## 打包
+```shell script
+poetry build
+```
+## 发布
+```shell script
+poetry publish
+```
+
 ## 各模块功能
 
-* api
+* paper_trading
+    > 主程序目录
+    * api
 
-  > 模拟交易程序使用到的api
+      > 模拟交易程序使用到的api
 
-  * db.py
+      * db.py
 
-    > mongodb数据服务类
-    
-  * pytdx_api.py
+        > mongodb数据服务类
 
-    > 封装了pytdx的行情服务模块，主要用来获取市场实时行情
-    
-  * tushare_api.py
+      * pytdx_api.py
 
-    > 封装了tushare的行情服务模块，主要用来获取市场实时行情
+        > 封装了pytdx的行情服务模块，主要用来获取市场实时行情
 
-* docs
+      * tushare_api.py
 
-  > 系统说明文档
+        > 封装了tushare的行情服务模块，主要用来获取市场实时行情
 
 * app
 
@@ -192,56 +100,64 @@ flask app 只提供了模拟交易服务的接口，需要你自己向这个接�
 
   > 事件引擎类，直接使用了VNPY中的事件引擎类
 
-* example
-
-  > pt_api.py 已经包括了对flask 服务的封装，你可以将pt_api.py放到你的量化交易程序中，import你需要的函数进行使用
-
 * trade
 
   > 核心模块
   * account.py
-  
+
     > 与账户、持仓、交易记录、订单薄有关的所有函数集合
-  
+
   * data_center.py
-  
+
     > 数据中心，包含web功能常用的行情数据
-  
+
   * market.py
-  
+
     > 交易市场类，里面包含了两种撮合成交的模式，注意根据你的使用需求进行配置
-    
+
   * pt_engine.py
-  
+
     > 程序主引擎
-    
+
   * report_builder.py
-  
+
     > 与报表相关，主要用来生成交易结果报表
 
 * utility
 
   > 工具箱
   * constant.py
-  
+
     > 常量类，所有的常量都在这里
-    
+
   * errors.py
-  
+
     > 错误类，继承自Exception
-    
+
   * event.py
-  
+
     > 事件引擎使用的所有事件类型
-    
+
   * model.py
-  
+
     > 数据模型类
-    
+
   * setting.py
-  
+
     > 设置
-  
+
+* docs
+
+  > 系统说明文档
+
+* example
+
+  > pt_api.py 已经包括了对flask 服务的封装，你可以将pt_api.py放到你的量化交易程序中，import你需要的函数进行使用
+
+* tests
+  测试代码，目前为空
+
+
 ## 感谢
 https://github.com/markqiu
 
