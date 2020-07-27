@@ -1,13 +1,13 @@
 [tool.poetry]
 name = "paper_trading"
-version = "1.2.1"
+version = "1.2.2"
 license = "MIT"
 description = "creat your own paper trading server"
 homepage = 'https://github.com/pTraderTeam/paper_trading'
 authors = ['Michael <cao6237699@126.com>']
 classifiers = [
         'Environment :: Console',
-        'Programming Language :: Python :: 3.7.3',
+        'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: Implementation :: CPython'
     ]
 

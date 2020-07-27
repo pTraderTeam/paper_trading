@@ -1,10 +1,10 @@
 import sys
 
-from .config import config
-from .app import creat_app
-from .trade.pt_engine import MainEngine
-from .utility.constant import ConfigType, PersistanceMode, LoadDataMode
-from .trade.market import BacktestMarket
+from paper_trading.config import config
+from paper_trading.app import creat_app
+from paper_trading.trade.pt_engine import MainEngine
+from paper_trading.utility.constant import ConfigType, PersistanceMode, LoadDataMode
+from paper_trading.trade.market import BacktestMarket
 
 
 def main():

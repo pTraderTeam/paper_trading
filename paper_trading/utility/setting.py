@@ -29,6 +29,9 @@ SETTINGS = {
     # mongoDB 参数
     "MONGO_HOST": "",
     "MONGO_PORT": 0,
+    # 本地行情数据， 用于web交易回看
+    "HQ_MONGO_HOST": "",
+    "HQ_MONGO_PORT": 0,
     "ACCOUNT_DB": "pt_account",
     "POSITION_DB": "pt_position",
     "TRADE_DB": "pt_trade",

@@ -5,6 +5,7 @@ from ..api.db import MongoDBService
 from ..trade.data_center import get_stock_daily_qfq, get_stock_mtime
 from ..trade.account import new_order_generate, cancel_order_generate
 from ..trade.db_model import on_account_exist, on_account_delete, query_account_list, query_orders_by_symbol, query_order_status, query_order_one, query_orders
+from ..utility.setting import SETTINGS
 
 # 主引擎
 main_engine = None
@@ -39,7 +40,7 @@ def init_blue(app, engine):
     tdx = main_engine.creat_hq_api()
 
     # 连接测试行情数据库
-    test_db = MongoDBService("192.168.1.251", 27017)
+    test_db = MongoDBService(SETTINGS["HQ_MONGO_HOST"], SETTINGS["HQ_MONGO_PORT"])
     test_db.connect_db()
 
 

@@ -1,12 +1,26 @@
 #Change Log
 
+## 2020年7月27日更新
+v1.2.2
+
+1、增加本地行情配置
+
+2、增加vnpy交易接口，可以使用vnpy交易框架报单
+
+
 ## 2020年7月15日更新
 v1.2.1
+
 1、整理项目目录安排，更符合PEP8
+
 2、建立pyproject.toml代替requirements.txt和setup.py，并改为采用poetry管理包
+
 3、增加pre-commit提交管理及.pre-commit配置，在其中增加black代码规范化工具
+
 4、增加tests目录，准备增加测试用例
+
 5、增加changelog.md，将更新日志移到此文件
+
 6、增加run.py脚本安装为命令行trading，可使用trading命令行启动服务器
 
 ## 2020年6月1日更新
