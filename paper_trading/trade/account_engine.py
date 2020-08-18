@@ -154,10 +154,8 @@ class AccountEngine:
     def liquidation(self, hq_client):
         """清算"""
         today = datetime.now().strftime("%Y%m%d")
-        account_list = query_account_list(self.db)
-        for account_id in account_list:
-            self.load_trader_data(account_id)
-            trader = self.trader_dict[account_id]
+
+        for token, trader in self.trader_dict.items():
             for symbol, pos in trader.pos.items():
                 hq = hq_client.get_realtime_data(symbol)
                 if hq is not None:
@@ -166,7 +164,6 @@ class AccountEngine:
                     trader.on_position_update_price(pos, now_price)
             # 清算
             trader.on_liquidation(today)
-            self.trader_dict.pop(account_id)
 
     def liq_manual(self, token, liq_date, price_dict):
         """手工清算"""
