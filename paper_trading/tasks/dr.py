@@ -40,7 +40,3 @@ def update_pos(collection, pos_list):
     """更新持仓"""
     for pos in pos_list:
         collection.update_one({"code": pos["code"]}, {"$set": pos})
-
-
-if __name__ == "__main__":
-    ex_dividend()
