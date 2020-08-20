@@ -67,6 +67,7 @@ class ExDividend(object):
         if dr_data["songzhuangu"]:
             stock_volume = int(pos["volume"] * dr_data["songzhuangu"] / 10)
             pos["volume"] += stock_volume
+            pos["available"] = pos["volume"]
             pos["buy_price"] = pos["buy_price"] / (1 + dr_data["songzhuangu"] / 10)
             # 转赠/送股信号
             signal = {
