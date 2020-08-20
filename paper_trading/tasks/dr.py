@@ -17,7 +17,7 @@ def ex_dividend():
     pos_col = ms.db_client[SETTINGS["POSITION_DB"]]
     # 模拟交易flask配置参数
     api = TdxHq_API()
-    search_date = (datetime.now() - timedelta(days=1)).strftime("%Y%m%d")
+    search_date = datetime.now().strftime("%Y%m%d")
 
     account_list = account_col.list_collection_names()
     with api.connect(SETTINGS["TDX_HOST"], SETTINGS["TDX_PORT"]):
