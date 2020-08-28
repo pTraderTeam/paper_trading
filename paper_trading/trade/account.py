@@ -1,14 +1,14 @@
 import copy
 import time
+
 import pandas as pd
 
 from ..event import Event
-from ..utility.event import *
-from ..utility.setting import SETTINGS
 from ..trade.db_model import query_position, query_orders, query_orders_today, query_account_record, query_pos_records, query_pos_records_not_clear
 from ..utility.constant import Status, OrderType, TradeType, PriceType, LoadDataMode
+from ..utility.event import *
 from ..utility.model import Account, AccountRecord, Position, PosRecord, Order
-
+from ..utility.setting import SETTINGS
 
 # 小数点保留位数
 P = SETTINGS["POINT"]
@@ -141,7 +141,6 @@ class Trader:
             order.status = Status.ALLTRADED.value
         else:
             order.status = Status.PARTTRADED.value
-
         # 订单更新
         new_order = copy.copy(order)
         self.orders[order.order_id] = new_order
@@ -286,8 +285,12 @@ class Trader:
             if order.trade_type == TradeType.T_PLUS1.value:
                 available = old_pos.available
 
-            buy_price = round((((old_pos.volume * old_pos.buy_price) + (order.traded * order.trade_price)) / volume), P)
-
+            # 计算买入成交均价
+            cost = order.traded * order.trade_price * self.account.cost
+            tax = order.traded * order.trade_price * self.account.tax
+            old_spent = old_pos.volume * old_pos.buy_price
+            added_spent = order.traded * order.trade_price * (1 + cost + tax)
+            buy_price = round((old_spent + added_spent) / volume, P)
             # 更新持仓信息
             new_pos = copy.copy(old_pos)
             new_pos.volume = volume
@@ -331,11 +334,19 @@ class Trader:
         tax = order.volume * order.trade_price * self.account.tax
         profit = round(((order.trade_price - old_pos.now_price) * old_pos.volume + old_pos.profit - cost - tax), P)
 
+        # 计算卖出成交均价
+        cost = order.traded * order.trade_price * self.account.cost
+        tax = order.traded * order.trade_price * self.account.tax
+        old_spent = old_pos.volume * old_pos.buy_price
+        reduced_spent = order.traded * order.trade_price * (1 - cost - tax)
+        buy_price = round((old_spent - reduced_spent) / volume, P)
+
         # 更新
         new_pos = copy.copy(old_pos)
         new_pos.volume = volume
         new_pos.now_price = now_price
         new_pos.profit = profit
+        new_pos.buy_price = buy_price
         self.pos[order.pt_symbol] = new_pos
         new_pos_val = volume * now_price
         pos_val_diff = new_pos_val - old_pos_val
