@@ -50,7 +50,7 @@ class PYTDXService:
             df = self.hq_api.to_df(self.hq_api.get_security_quotes(symbols))
             data = self.client["stocks"]["security"].find_one({"code": symbols[0][1], "market": str(symbols[0][0])})
             # 处理基金价格：通达信基金数据是实际价格的10倍
-            if data["decimal_point"] == 3:
+            if data and data["decimal_point"] == 3:
                 for val in [
                     "price",
                     "last_close",
