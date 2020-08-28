@@ -1,11 +1,11 @@
 import logging
 
-from ..utility.model import LogData
-from ..utility.constant import Status, LoadDataMode
 from ..event import Event
-from ..utility.event import *
-from ..trade.db_model import *
 from ..trade.account import Trader, order_generate
+from ..trade.db_model import *
+from ..utility.constant import Status, LoadDataMode
+from ..utility.event import *
+from ..utility.model import LogData
 
 
 class AccountEngine:
@@ -187,6 +187,24 @@ class AccountEngine:
         if trader:
             account = trader.account
             return True, account.__dict__
+        else:
+            return False, "账户未登录"
+
+    def query_latest_account_data(self, token: str):
+        """
+        查询账户最新信息
+        :param token: 账户ID
+        :return: 账户数据字典
+        """
+        trader = self.trader_dict.get(token, None)
+        if trader:
+            db_account = query_account_one(token, self.db)
+            current_available = db_account["assets"] - db_account["market_value"]
+            pos = query_position(token, self.db)
+            if pos:
+                db_account["market_value"] = sum([x["now_price"] * x["volume"] for x in pos])
+            db_account["assets"] = db_account["market_value"] + current_available
+            return True, db_account
         else:
             return False, "账户未登录"
 

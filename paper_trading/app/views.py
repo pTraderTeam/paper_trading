@@ -174,7 +174,7 @@ def account_query():
 
     if request.form.get("token"):
         token = request.form["token"]
-        status, account = account_engine.query_account_data(token)
+        status, account = account_engine.query_latest_account_data(token)
         rps["status"] = status
         rps["data"] = account
     else:
