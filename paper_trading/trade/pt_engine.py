@@ -1,19 +1,21 @@
 import logging
 import smtplib
 from abc import ABC
+from email.message import EmailMessage
 from queue import Empty, Queue
 from threading import Thread
-from email.message import EmailMessage
+from time import sleep
 
-from ..event import EventEngine, Event
+from .account import pos_generate
+from .account_engine import AccountEngine, query_position, on_position_update
+from .market import ChinaAMarket
 from ..api.db import MongoDBService
 from ..api.pytdx_api import PYTDXService
-from ..utility.setting import SETTINGS
-from ..utility.model import LogData
+from ..event import EventEngine, Event
+from ..utility.constant import PersistanceMode
 from ..utility.event import EVENT_LOG, EVENT_ERROR, EVENT_MARKET_CLOSE
-from paper_trading.utility.constant import PersistanceMode
-from paper_trading.trade.market import ChinaAMarket
-from paper_trading.trade.account_engine import AccountEngine
+from ..utility.model import LogData
+from ..utility.setting import SETTINGS
 
 
 class MainEngine:
@@ -33,6 +35,7 @@ class MainEngine:
         self._market = market  # 交易市场
         self.account_engine = None  # 账户引擎
         self.order_put = None  # 订单回调函数
+        self.flush_login_pos_stock_price = None  # 更新登录用户持仓现价线程
 
         # 更新参数
         self._settings.update(param)
@@ -95,6 +98,10 @@ class MainEngine:
         # 启动订单薄撮合程序
         self._thread.start()
         self.__active = True
+
+        # 更新登录用户持仓现价线程
+        self.flush_login_pos_stock_price = FlushPosStockPriceEngine(self.event_engine, self.account_engine, db, hq_client)
+        self.flush_login_pos_stock_price.start()
 
         return self
 
@@ -293,6 +300,51 @@ class EmailEngine(BaseEngine):
                     smtp.send_message(msg)
             except Empty:
                 pass
+
+    def start(self):
+        """"""
+        self.active = True
+        self.thread.start()
+
+    def close(self):
+        """"""
+        if not self.active:
+            return
+
+        self.active = False
+        self.thread.join()
+
+
+class FlushPosStockPriceEngine(BaseEngine):
+    """
+    刷新登录用户持仓股票现价引擎
+    """
+
+    def __init__(self, event_engine: EventEngine, account_engine: AccountEngine, db: MongoDBService, hq_client: PYTDXService):
+        """"""
+        super(FlushPosStockPriceEngine, self).__init__(event_engine, "email")
+        self.account_engine = account_engine
+        self.thread = Thread(target=self.run)
+        self.active = False
+        self.db = db
+        self.hq_client = hq_client
+
+    def update_position_stock_now_price(self, account_id):
+        data = query_position(account_id, self.db) or []
+        for pos in data:
+            pos["now_price"] = self.hq_client.get_realtime_data(pos["pt_symbol"])["price"][0]
+            on_position_update(pos_generate(pos), self.db)
+
+    def run(self):
+        """"""
+        while self.active:
+            try:
+                for account_id, trader in self.account_engine.trader_dict.items():
+                    if trader.pos:
+                        self.update_position_stock_now_price(account_id)
+                    sleep(3)
+            except RuntimeError:
+                continue
 
     def start(self):
         """"""
