@@ -286,9 +286,8 @@ class Trader:
                 available = old_pos.available
 
             # 计算买入成交均价
-            tax = order.volume * order.trade_price * self.account.tax
             old_spent = old_pos.volume * old_pos.buy_price
-            added_spent = order.volume * order.trade_price * (1 + cost + tax)
+            added_spent = order.volume * order.trade_price * (1 + self.account.cost + self.account.tax)
             buy_price = round((old_spent + added_spent) / volume, P)
             # 更新持仓信息
             new_pos = copy.copy(old_pos)
@@ -335,7 +334,7 @@ class Trader:
 
         # 计算卖出成交均价
         old_spent = old_pos.volume * old_pos.buy_price
-        reduced_spent = order.volume * order.trade_price * (1 - cost - tax)
+        reduced_spent = order.volume * order.trade_price * (1 - self.account.cost - self.account.tax)
         buy_price = round((old_spent - reduced_spent) / volume, P)
 
         # 更新
