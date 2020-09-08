@@ -338,13 +338,11 @@ class FlushPosStockPriceEngine(BaseEngine):
     def run(self):
         """"""
         while self.active:
-            try:
-                for account_id, trader in self.account_engine.trader_dict.items():
-                    if trader.pos:
-                        self.update_position_stock_now_price(account_id)
-                    sleep(3)
-            except RuntimeError:
-                continue
+            tmp_dict = self.account_engine.trader_dict.copy()
+            for account_id, trader in tmp_dict.items():
+                if trader.pos:
+                    self.update_position_stock_now_price(account_id)
+            sleep(3)
 
     def start(self):
         """"""

@@ -154,8 +154,8 @@ class AccountEngine:
     def liquidation(self, hq_client):
         """清算"""
         today = datetime.now().strftime("%Y%m%d")
-
-        for token, trader in self.trader_dict.items():
+        tmp_dict = self.trader_dict.copy()
+        for token, trader in tmp_dict.items():
             for symbol, pos in trader.pos.items():
                 hq = hq_client.get_realtime_data(symbol)
                 if hq is not None:
